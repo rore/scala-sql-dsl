@@ -39,7 +39,7 @@ object AnsiSqlRenderer {
     case StringEquals(field, value) => "%s = %s".format(field, quote(value))
     case BooleanEquals(field, value) => "%s = %s".format(field, value)
     case NumberEquals(field, value) => "%s = %s".format(field, value)
-    case in:In => "%s in (%s)".format(in.field, in.values.map(quote(_)).mkString(","))
+    case in:In => "%s in (%s)".format(in.field, in.values.map(v => quote(v.toString())).mkString(","))
     case and:And => "(%s and %s)".format(expandClause(and.lClause), expandClause(and.rClause))
     case or:Or => "(%s or %s)".format(expandClause(or.lClause), expandClause(or.rClause))
     case _ => throw new IllegalArgumentException("Clause %s not implemented".format(clause))

@@ -19,10 +19,14 @@ abstract class Clause {
   def or(otherField: Clause): Clause = Or(this, otherField)
 }
 
+abstract class In(val field:String, val values:Any*) extends Clause
+
 case class StringEquals(val f: String, val value: String) extends Clause
 case class NumberEquals(val f: String, val value: Number) extends Clause
 case class BooleanEquals(val f: String, val value: Boolean) extends Clause
-case class In(val field: String, val values: String*) extends Clause
+case class InString(override val field: String, override val values: String*) extends In(field, values)
+case class InNumber(override val field: String, override val values: Number*) extends In(field, values)
+case class InBoolean(override val field: String, override val values: Boolean*) extends In(field, values)
 case class And(val lClause:Clause, val rClause:Clause) extends Clause
 case class Or(val lClause:Clause, val rClause:Clause) extends Clause
 
@@ -43,5 +47,5 @@ object QueryBuilder {
     case _ => throw new RuntimeException("Only 'all allowed as symbol")
   }
 
-  def in(field: String, values: String*) = In(field, values: _*)
+  def in(field: String, values: String*) = InString(field, values: _*)
 }
