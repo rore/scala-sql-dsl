@@ -5,7 +5,10 @@ import org.scalatest.Spec
 
 import QueryBuilder._
 import AnsiSqlRenderer._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 
+@RunWith(classOf[JUnitRunner])
 class QueryBuilderSpec extends Spec with ShouldMatchers {
 
   val SQL = QueryBuilder

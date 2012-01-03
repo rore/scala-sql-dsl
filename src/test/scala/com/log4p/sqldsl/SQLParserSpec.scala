@@ -1,8 +1,11 @@
 package com.log4p.sqldsl
 
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.Spec
 
+@RunWith(classOf[JUnitRunner])
 class SQLParserSpec extends Spec with ShouldMatchers {
   val p = new SQLParser
   describe("given a sql string with an order clause") {
