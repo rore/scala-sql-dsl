@@ -10,7 +10,7 @@ class SQLParser extends JavaTokenParsers {
   }
 
   def operation:Parser[Operation] = {
-    ("select" | "update" | "delete") ~ repsep(ident, ",") ^^ {
+    ("select" | "update" | "delete") ~ (("*" ^^^ List("*")) | repsep(ident, ",")) ^^ {
       case "select" ~ f => Select(f:_*)
       case _ => throw new IllegalArgumentException("Operation not implemented")
     }
