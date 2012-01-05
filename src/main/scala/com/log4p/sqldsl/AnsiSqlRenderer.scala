@@ -11,7 +11,8 @@ object AnsiSqlRenderer {
       expandOperation(query),
       expandFrom(query),
       expandWhere(query),
-      expandOrder(query)
+      expandOrder(query),
+      expandLimit(query)
     )
     .filter(_ != None)
     .map(_ match {
@@ -50,6 +51,11 @@ object AnsiSqlRenderer {
       case Asc(field) => Option("order by %s asc".format(field))
       case Desc(field) => Option("order by %s desc".format(field))
     }
+    case None => None
+  }
+
+   def expandLimit(query: Query):Option[String] = query.limit match {
+    case Some(l) => Option("limit %s".format(l.limit)) 
     case None => None
   }
 

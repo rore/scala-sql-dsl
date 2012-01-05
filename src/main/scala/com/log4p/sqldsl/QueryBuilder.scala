@@ -1,7 +1,9 @@
 package com.log4p.sqldsl
 
-case class Query(val operation:Operation, val from: From, val where: Option[Where], val order: Option[Direction] = None) {
+case class Query(val operation:Operation, val from: From, val where: Option[Where], val order: Option[Direction] = None,
+		val limit: Option[Limit] = None) {
   def order(dir: Direction): Query = this.copy(order = Option(dir))
+  def limit(num:Int): Query = this.copy(limit = Option(Limit(num)))
 }
 
 abstract class Operation {
@@ -33,6 +35,8 @@ case class Or(val lClause:Clause, val rClause:Clause) extends Clause
 abstract class Direction
 case class Asc(field: String) extends Direction
 case class Desc(field: String) extends Direction
+
+case class Limit(limit:Int) 
 
 object QueryBuilder {
   implicit def tuple2field(t: (String, String)): StringEquals = StringEquals(t._1, t._2)

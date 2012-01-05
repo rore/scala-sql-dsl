@@ -5,8 +5,8 @@ import scala.util.parsing.combinator.syntactical._
 
 class SQLParser extends JavaTokenParsers {
 
-  def query:Parser[Query] = operation ~ from ~ opt(where) ~ opt(order) ^^ {
-    case operation ~ from ~ where ~ order => Query(operation, from, where, order)
+  def query:Parser[Query] = operation ~ from ~ opt(where) ~ opt(order) ~ opt(limit) ^^ {
+    case operation ~ from ~ where ~ order ~ limit => Query(operation, from, where, order, limit)
   }
 
   def operation:Parser[Operation] = {
@@ -20,6 +20,8 @@ class SQLParser extends JavaTokenParsers {
 
   def where:Parser[Where] = "where" ~> rep(clause) ^^ (Where(_:_*))
 
+  def limit:Parser[Limit] = "limit" ~> wholeNumber ^^ (n => Limit(n.toInt))
+  
   def clause:Parser[Clause] = (predicate|parens) * (
             "and" ^^^ { (a:Clause, b:Clause) => And(a,b) } |
             "or" ^^^ { (a:Clause, b:Clause) => Or(a,b) } 

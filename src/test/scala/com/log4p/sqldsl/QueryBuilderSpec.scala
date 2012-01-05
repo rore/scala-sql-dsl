@@ -35,6 +35,13 @@ class QueryBuilderSpec extends Spec with ShouldMatchers {
         q.sql should be ("select * from user where id = 100")
       }
     }
+    describe("(when specifying a limit)") {
+      val q = SQL select "*" from("user") where (("id", 100)) limit 5
+
+      it("shouldn't quote numbers in resulting SQL") {
+        q.sql should be ("select * from user where id = 100 limit 5")
+      }
+    }
     describe("(when containing 'in' clause)") {
       val q = SQL select "*" from ("user") where (in("name","pe'ter","petrus"))
 
