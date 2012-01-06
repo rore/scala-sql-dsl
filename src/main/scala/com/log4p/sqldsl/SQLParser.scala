@@ -16,7 +16,7 @@ class SQLParser extends JavaTokenParsers {
     }
   }
 
-  def from:Parser[From] = "from" ~> ident ^^ (From(_))
+  def from:Parser[From] = "from" ~> identifier ^^ (From(_))
 
   def where:Parser[Where] = "where" ~> rep(clause) ^^ (Where(_:_*))
 
@@ -36,22 +36,23 @@ class SQLParser extends JavaTokenParsers {
   def inNumber = "(" ~> repsep(number, ",") <~ ")"
   
   def predicate = (
-      ident ~ "=" ~ boolean ^^ { case f ~ "=" ~ b => BooleanEquals(f,b)} 
-    | ident ~ "=" ~ stringLiteral ^^ { case f ~ "=" ~ v => StringEquals(f,stripQuotes(v))}
-    | ident ~ ">" ~ stringLiteral ^^ { case f ~ ">" ~ v => GTString(f,stripQuotes(v))}
-    | ident ~ ">=" ~ stringLiteral ^^ { case f ~ ">=" ~ v => GTEString(f,stripQuotes(v))}
-    | ident ~ "<" ~ stringLiteral ^^ { case f ~ "<" ~ v => LTString(f,stripQuotes(v))}
-    | ident ~ "<=" ~ stringLiteral ^^ { case f ~ "<=" ~ v => LTEString(f,stripQuotes(v))}
-    | ident ~ "=" ~ number ^^ { case f ~ "=" ~ i => NumberEquals(f,i)}
-    | ident ~ ">" ~ number ^^ { case f ~ ">" ~ v => GTNumber(f,v)}
-    | ident ~ ">=" ~ number ^^ { case f ~ ">=" ~ v => GTENumber(f,v)}
-    | ident ~ "<" ~ number ^^ { case f ~ "<" ~ v => LTNumber(f,v)}
-    | ident ~ "<=" ~ number ^^ { case f ~ "<=" ~ v => LTENumber(f,v)}
-    | ident ~ "in" ~ inString ^^ { case f ~ "in" ~ vals => InString(f,vals:_*)} 
-    | ident ~ "in" ~ inNumber ^^ { case f ~ "in" ~ vals => InNumber(f,vals:_*)}
+      identifier ~ "=" ~ boolean ^^ { case f ~ "=" ~ b => BooleanEquals(f,b)} 
+    | identifier ~ "=" ~ stringLiteral ^^ { case f ~ "=" ~ v => StringEquals(f,stripQuotes(v))}
+    | identifier ~ ">" ~ stringLiteral ^^ { case f ~ ">" ~ v => GTString(f,stripQuotes(v))}
+    | identifier ~ ">=" ~ stringLiteral ^^ { case f ~ ">=" ~ v => GTEString(f,stripQuotes(v))}
+    | identifier ~ "<" ~ stringLiteral ^^ { case f ~ "<" ~ v => LTString(f,stripQuotes(v))}
+    | identifier ~ "<=" ~ stringLiteral ^^ { case f ~ "<=" ~ v => LTEString(f,stripQuotes(v))}
+    | identifier ~ "=" ~ number ^^ { case f ~ "=" ~ i => NumberEquals(f,i)}
+    | identifier ~ ">" ~ number ^^ { case f ~ ">" ~ v => GTNumber(f,v)}
+    | identifier ~ ">=" ~ number ^^ { case f ~ ">=" ~ v => GTENumber(f,v)}
+    | identifier ~ "<" ~ number ^^ { case f ~ "<" ~ v => LTNumber(f,v)}
+    | identifier ~ "<=" ~ number ^^ { case f ~ "<=" ~ v => LTENumber(f,v)}
+    | identifier ~ "in" ~ inString ^^ { case f ~ "in" ~ vals => InString(f,vals:_*)} 
+    | identifier ~ "in" ~ inNumber ^^ { case f ~ "in" ~ vals => InNumber(f,vals:_*)}
 
   )
 
+  def identifier = ident | (stringLiteral ^^ {case i => stripQuotes(i)})
   def boolean = ("true" ^^^ (true) | "false" ^^^ (false))
   def int = wholeNumber ^^ {case n => n.toInt}
   def decimal = decimalNumber ^^ {case n => n.toDouble}
@@ -65,7 +66,7 @@ class SQLParser extends JavaTokenParsers {
     }
   }
 
-  def stripQuotes(s:String) = s.substring(1, s.length-1)
+  def stripQuotes(s:String) = if (null != s && s.startsWith("\"")) s.substring(1, s.length-1) else s;
 
   var lastError:Option[String] = None;
   
