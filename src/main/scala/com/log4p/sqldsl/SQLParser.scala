@@ -30,18 +30,25 @@ class SQLParser extends JavaTokenParsers {
   def parens:Parser[Clause] = "(" ~> clause  <~ ")"
   
   def inString = "(" ~> repsep(stringLiteral, ",") <~ ")"
-  def inInt = "(" ~> repsep(int, ",") <~ ")"
-  def inDecimal = "(" ~> repsep(decimal, ",") <~ ")"
-  def inFloat = "(" ~> repsep(float, ",") <~ ")"
+  //def inInt = "(" ~> repsep(int, ",") <~ ")"
+  //def inDecimal = "(" ~> repsep(decimal, ",") <~ ")"/
+  //def inFloat = "(" ~> repsep(float, ",") <~ ")"
+  def inNumber = "(" ~> repsep(number, ",") <~ ")"
   
   def predicate = (
       ident ~ "=" ~ boolean ^^ { case f ~ "=" ~ b => BooleanEquals(f,b)} 
     | ident ~ "=" ~ stringLiteral ^^ { case f ~ "=" ~ v => StringEquals(f,stripQuotes(v))}
-    | ident ~ "=" ~ wholeNumber ^^ { case f ~ "=" ~ i => NumberEquals(f,i.toInt)}
+    | ident ~ ">" ~ stringLiteral ^^ { case f ~ ">" ~ v => GTString(f,stripQuotes(v))}
+    | ident ~ ">=" ~ stringLiteral ^^ { case f ~ ">=" ~ v => GTEString(f,stripQuotes(v))}
+    | ident ~ "<" ~ stringLiteral ^^ { case f ~ "<" ~ v => LTString(f,stripQuotes(v))}
+    | ident ~ "<=" ~ stringLiteral ^^ { case f ~ "<=" ~ v => LTEString(f,stripQuotes(v))}
+    | ident ~ "=" ~ number ^^ { case f ~ "=" ~ i => NumberEquals(f,i)}
+    | ident ~ ">" ~ number ^^ { case f ~ ">" ~ v => GTNumber(f,v)}
+    | ident ~ ">=" ~ number ^^ { case f ~ ">=" ~ v => GTENumber(f,v)}
+    | ident ~ "<" ~ number ^^ { case f ~ "<" ~ v => LTNumber(f,v)}
+    | ident ~ "<=" ~ number ^^ { case f ~ "<=" ~ v => LTENumber(f,v)}
     | ident ~ "in" ~ inString ^^ { case f ~ "in" ~ vals => InString(f,vals:_*)} 
-    | ident ~ "in" ~ inInt ^^ { case f ~ "in" ~ vals => InNumber(f,vals.map(i => i.asInstanceOf[Number]):_*)}
-    | ident ~ "in" ~ inDecimal ^^ { case f ~ "in" ~ vals => InNumber(f,vals.map(i => i.asInstanceOf[Number]):_*)}
-    | ident ~ "in" ~ inFloat ^^ { case f ~ "in" ~ vals => InNumber(f,vals.map(i => i.asInstanceOf[Number]):_*)}
+    | ident ~ "in" ~ inNumber ^^ { case f ~ "in" ~ vals => InNumber(f,vals:_*)}
 
   )
 
@@ -49,7 +56,8 @@ class SQLParser extends JavaTokenParsers {
   def int = wholeNumber ^^ {case n => n.toInt}
   def decimal = decimalNumber ^^ {case n => n.toDouble}
   def float = floatingPointNumber ^^ {case n => n.toFloat}
-
+  def number = (decimal ^^ {case n => n.asInstanceOf[Number]} | float ^^ {case n => n.asInstanceOf[Number]} | int ^^ {case n => n.asInstanceOf[Number]}) 
+  
   def order:Parser[Direction] = {
     "order" ~> "by" ~> ident  ~ ("asc" | "desc") ^^ {
       case f ~ "asc" => Asc(f)
@@ -59,10 +67,18 @@ class SQLParser extends JavaTokenParsers {
 
   def stripQuotes(s:String) = s.substring(1, s.length-1)
 
+  var lastError:Option[String] = None;
+  
   def parse(sql:String):Option[Query] = {
-    parseAll(query, sql) match {
+    lastError = None
+    val res = parseAll(query, sql) 
+    res match {
       case Success(r, q) => Option(r)
-      case x => println(x); None
+      case x => {
+    	  lastError = Some(x.toString); 
+    	  println(lastError.get); 
+    	  None
+      }
     }
   }
 }

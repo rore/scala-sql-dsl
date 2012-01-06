@@ -23,9 +23,17 @@ abstract class Clause {
 
 abstract class In(val field:String, val values:Any*) extends Clause
 
-case class StringEquals(val f: String, val value: String) extends Clause
-case class NumberEquals(val f: String, val value: Number) extends Clause
-case class BooleanEquals(val f: String, val value: Boolean) extends Clause
+case class StringEquals(val field: String, val value: String) extends Clause
+case class NumberEquals(val field: String, val value: Number) extends Clause
+case class BooleanEquals(val field: String, val value: Boolean) extends Clause
+case class GTNumber(val field: String, val value: Number) extends Clause
+case class GTENumber(val field: String, val value: Number) extends Clause
+case class LTNumber(val field: String, val value: Number) extends Clause
+case class LTENumber(val field: String, val value: Number) extends Clause
+case class GTString(val field: String, val value: String) extends Clause
+case class GTEString(val field: String, val value: String) extends Clause
+case class LTString(val field: String, val value: String) extends Clause
+case class LTEString(val field: String, val value: String) extends Clause
 case class InString(override val field: String, override val values: String*) extends In(field, values)
 case class InNumber(override val field: String, override val values: Number*) extends In(field, values)
 case class InBoolean(override val field: String, override val values: Boolean*) extends In(field, values)
